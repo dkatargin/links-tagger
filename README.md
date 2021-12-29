@@ -1,2 +1,2 @@
 # 🧠 Second brain [WIP]
-Some mental assistant which can stor and find your memo.
+Some mental assistant which can store and find your memo.
