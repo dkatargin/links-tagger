@@ -10,11 +10,11 @@ from common import config, logger
 tokenizer = RegexpTokenizer(r'\w+')
 
 def process_data(text):
-    target_text = text.lower()
+    target_text = text
     if validators.url(text.strip()):
         req = requests.get(text)
         content = req.content[:100000]
-        soup = BeautifulSoup(content, "html")
+        soup = BeautifulSoup(content, "html.parser")
         words = ""
         html_title = soup.find("title")
         og_descr = soup.find("meta", property="og:description")
@@ -27,9 +27,9 @@ def process_data(text):
             words += twitter_descr.contents[0]
         target_text = words
 
-    tokenized = tokenizer.tokenize(target_text.lower())
+    tokenized = tokenizer.tokenize(target_text)
     is_noun = lambda pos: pos[:2] == 'NN'
-    tags = set([word for (word, pos) in nltk.pos_tag(tokenized) if is_noun(pos)])
+    tags = sorted(set([word.lower() for (word, pos) in nltk.pos_tag(tokenized) if is_noun(pos)]))
     return tags
 
 
