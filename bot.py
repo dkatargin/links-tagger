@@ -1,16 +1,24 @@
-# This is a sample Python script.
+from telegram.ext import Updater, Filters, MessageHandler
 
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press ⌘F8 to toggle the breakpoint.
+from common import config, logger
 
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
+def process_data(text):
+    text_type = "text"
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+
+
+def main(update, context):
+    data = update.message.text
+    if update.message.chat.id != int(config.config.get("Telegram", "admin_id")):
+        logger.bot_logger.warning(f"request from unauthorized user-id {update.message.chat.id}")
+        return
+    process_data(data)
+
+
+if __name__ == "__main__":
+    logger.bot_logger.info("bot running...")
+    updater = Updater(config.config.get("Telegram", "token"))
+    updater.dispatcher.add_handler(MessageHandler(Filters.all, main))
+    updater.start_polling()
+    updater.idle()
