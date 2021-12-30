@@ -2,14 +2,7 @@
 
 Mental assistant which can store and find your memo. Supports russian and english languages.
 
-### NLTK Packages
 
-* ```nltk.download('averaged_perceptron_tagger')``` - for english words tokenize
-* ```nltk.download('averaged_perceptron_tagger_ru')``` - for russian words tokenize
-* ```nltk.download('crubadan')``` - for languade detection
-* ```nltk.download('punkt')``` - for word tokenize
-* ```nltk.download('omw-1.4')``` - for word lemma (multilang)
-* ```nltk.download('wordnet')``` - basic lemma
 
 ### What's works now
 * Telegram-bot recieves message
@@ -23,3 +16,14 @@ Mental assistant which can store and find your memo. Supports russian and englis
 
 ### Usage examples
 ![Telegram Bot](telegram_usage.jpeg "Telegram bot")
+
+# About code
+Code tested and work on Python 3.9 with ![requirements](requirements.txt) in venv. Also yon need to download NLTK packages.
+
+### NLTK Packages
+* ```nltk.download('averaged_perceptron_tagger')``` - for english words tokenize
+* ```nltk.download('averaged_perceptron_tagger_ru')``` - for russian words tokenize
+* ```nltk.download('crubadan')``` - for languade detection
+* ```nltk.download('punkt')``` - for word tokenize
+* ```nltk.download('omw-1.4')``` - for word lemma (multilang)
+* ```nltk.download('wordnet')``` - basic lemma
