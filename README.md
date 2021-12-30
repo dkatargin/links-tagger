@@ -1,6 +1,6 @@
-# 🧠 Second brain [WIP]
+# 🧠 Second brain
 
-Some mental assistant which can store and find your memo.
+Mental assistant which can store and find your memo.
 
 ### NLTK Packages
 
@@ -10,6 +10,16 @@ Some mental assistant which can store and find your memo.
 * ```nltk.download('punkt')``` - for word tokenize
 * ```nltk.download('omw-1.4')``` - for word lemma (multilang)
 * ```nltk.download('wordnet')``` - basic lemma
+
+### What's works now
+* Telegram-bot recieves message
+* Extract tags from text and links
+* Return sorted and uniq tag as anwer by bot
+
+### TODO
+* Make web-version (backend & frontend)
+* Postgresql as storage for tags and words
+* ...
 
 ### Usage examples
 ![Telegram Bot](telegram_usage.jpeg "Telegram bot")
