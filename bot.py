@@ -1,3 +1,5 @@
+import re
+
 import nltk
 import requests
 import validators
@@ -19,12 +21,15 @@ en_lemmatizer = WordNetLemmatizer()
 ru_lemmatizer = Mystem()
 
 
+def get_text_acronyms(text):
+    return re.findall(r"\b[A-Z]{2,}\b", text)
+
+
 def get_lang(text):
     return str(tc.guess_language(text)).strip()
 
 
-def lemmatize_word(word):
-    lang = get_lang(word)
+def lemmatize_word(word, lang):
     if lang == ru_lang:
         res = ru_lemmatizer.lemmatize(word)[0]
     else:
@@ -32,12 +37,21 @@ def lemmatize_word(word):
     return res
 
 
+def is_tag_pos(pos):
+    if pos in ["S", "NONLEX"] or pos[:2] == "NN":
+        return True
+    return False
+
+
 def process_data(text):
     target_text = text
-
+    acronyms = get_text_acronyms(text)
     if validators.url(text.strip()):
+        target_text = ""
         req = requests.get(text, headers={'User-Agent': 'TelegramBot (like TwitterBot)'})
+        req.close()
         content = req.content[:100000]
+
         soup = BeautifulSoup(content, "html.parser")
         words = ""
         html_title = soup.find("title")
@@ -49,17 +63,18 @@ def process_data(text):
             words += og_descr.contents[0]
         if twitter_descr and len(twitter_descr.contents) != 0:
             words += twitter_descr.contents[0]
-        target_text = words
+        for w in words.split():
+            if w in acronyms:
+                target_text += f"{w} "
+            else:
+                target_text += f"{w.lower()} "
+
     text_lang = get_lang(target_text)
-    if text_lang == ru_lang:
-        noun_tag = 'S'
-    else:
-        noun_tag = 'NN'
+
     tokenized = tokenizer.tokenize(target_text)
-    is_noun = lambda pos: pos[:2] == noun_tag
     tags = sorted(set(
-        [lemmatize_word(word.lower()) for (word, pos) in nltk.pos_tag(tokenized, lang=text_lang) if
-         is_noun(pos)]))
+        [lemmatize_word(word.lower(), text_lang) for (word, pos) in nltk.pos_tag(tokenized, lang=text_lang) if
+         is_tag_pos(pos)]))
     return tags
 
 
