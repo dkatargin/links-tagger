@@ -1,18 +1,19 @@
+import nltk
 import requests
 import validators
-import nltk
-from nltk.tokenize import RegexpTokenizer
 from bs4 import BeautifulSoup
+from nltk.tokenize import RegexpTokenizer
 from telegram.ext import Updater, Filters, MessageHandler
 
 from common import config, logger
 
 tokenizer = RegexpTokenizer(r'\w+')
 
+
 def process_data(text):
     target_text = text
     if validators.url(text.strip()):
-        req = requests.get(text)
+        req = requests.get(text, headers={'User-Agent': 'TelegramBot (like TwitterBot)'})
         content = req.content[:100000]
         soup = BeautifulSoup(content, "html.parser")
         words = ""
