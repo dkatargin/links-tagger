@@ -86,12 +86,15 @@ def process_data(text):
         html_title = soup.find("title")
         og_descr = soup.find("meta", property="og:description")
         twitter_descr = soup.find("meta", property="twitter:description")
-        if html_title and len(html_title.contents) != 0:
-            text += html_title.contents[0]
-        if og_descr and len(og_descr.contents) != 0:
-            text += og_descr.contents[0]
-        if twitter_descr and len(twitter_descr.contents) != 0:
-            text += twitter_descr.contents[0]
+        if html_title and (len(html_title.contents) != 0 or html_title.attrs.get("content")):
+            tag_content = html_title.attrs.get("content") or html_title.contents[0]
+            text += tag_content + " "
+        if og_descr and (len(og_descr.contents) != 0 or og_descr.attrs.get("content")):
+            tag_content = og_descr.attrs.get("content") or og_descr.contents[0]
+            text += tag_content + " "
+        if twitter_descr and (len(twitter_descr.contents) != 0 or twitter_descr.attrs.get("content")):
+            tag_content = twitter_descr.attrs.get("content") or twitter_descr.contents[0]
+            text += tag_content + " "
 
     # init variables for text prepare
     target_text = ""
