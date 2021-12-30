@@ -2,13 +2,29 @@ import nltk
 import requests
 import validators
 from bs4 import BeautifulSoup
+from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.tokenize import RegexpTokenizer
+from pymystem3 import Mystem
 from telegram.ext import Updater, Filters, MessageHandler
 
 from common import config, logger
 
+ru_lang = "rus"
+en_lang = "eng"
+
 tokenizer = RegexpTokenizer(r'\w+')
 tc = nltk.classify.textcat.TextCat()
+
+en_lemmatizer = WordNetLemmatizer()
+ru_lemmatizer = Mystem()
+
+
+def lemmatize_word(word, lang):
+    if lang == ru_lang:
+        res = ru_lemmatizer.lemmatize(word)[0]
+    else:
+        res = en_lemmatizer.lemmatize(word, "n")
+    return res
 
 
 def process_data(text):
@@ -31,25 +47,30 @@ def process_data(text):
         target_text = words
 
     text_language = str(tc.guess_language(target_text)).strip()
-    if text_language == "rus":
+    if text_language == ru_lang:
         noun_tag = 'S'
     else:
         noun_tag = 'NN'
     tokenized = tokenizer.tokenize(target_text)
     is_noun = lambda pos: pos[:2] == noun_tag
-    tags = sorted(set([word.lower() for (word, pos) in nltk.pos_tag(tokenized, lang=text_language) if is_noun(pos)]))
+    tags = set(
+        [lemmatize_word(word.lower(), text_language) for (word, pos) in nltk.pos_tag(tokenized, lang=text_language) if
+         is_noun(pos)])
     return tags
 
 
 def main(update, context):
+    result = ""
     data = update.message.text
     if update.message.chat.id != int(config.config.get("Telegram", "admin_id")):
         logger.bot_logger.warning(f"request from unauthorized user-id {update.message.chat.id}")
         return
-    tags = process_data(data)
-    result = ""
-    for t in tags:
-        result += f"#{t} "
+    try:
+        tags = process_data(data)
+        for t in tags:
+            result += f"#{t} "
+    except Exception as e:
+        result = f"Ошибка: {e}"
 
     update.message.reply_text(result)
 
