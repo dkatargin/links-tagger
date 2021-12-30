@@ -21,7 +21,7 @@ en_lemmatizer = WordNetLemmatizer()
 ru_lemmatizer = Mystem()
 
 
-def get_text_acronyms(text):
+def get_acronyms(text):
     return re.findall(r"\b[A-Z]{2,}\b", text)
 
 
@@ -44,32 +44,32 @@ def is_tag_pos(pos):
 
 
 def process_data(text):
-    target_text = text
-    acronyms = get_text_acronyms(text)
     if validators.url(text.strip()):
-        target_text = ""
         req = requests.get(text, headers={'User-Agent': 'TelegramBot (like TwitterBot)'})
         req.close()
         content = req.content[:100000]
 
         soup = BeautifulSoup(content, "html.parser")
-        words = ""
+        text = ""
         html_title = soup.find("title")
         og_descr = soup.find("meta", property="og:description")
         twitter_descr = soup.find("meta", property="twitter:description")
         if html_title and len(html_title.contents) != 0:
-            words += html_title.contents[0]
+            text += html_title.contents[0]
         if og_descr and len(og_descr.contents) != 0:
-            words += og_descr.contents[0]
+            text += og_descr.contents[0]
         if twitter_descr and len(twitter_descr.contents) != 0:
-            words += twitter_descr.contents[0]
-        for w in words.split():
-            if w in acronyms:
-                target_text += f"{w} "
-            else:
-                target_text += f"{w.lower()} "
+            text += twitter_descr.contents[0]
 
-    text_lang = get_lang(target_text)
+    text_lang = get_lang(text)
+    target_text = ""
+    acronyms = get_acronyms(text)
+    for w in text.split():
+        if w in acronyms:
+            target_text += f"{w} "
+        else:
+            target_text += f"{w.lower()} "
+
 
     tokenized = tokenizer.tokenize(target_text)
     tags = sorted(set(
