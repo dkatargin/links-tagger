@@ -8,16 +8,11 @@ from telegram.ext import Updater, Filters, MessageHandler
 from common import config, logger
 
 tokenizer = RegexpTokenizer(r'\w+')
+tc = nltk.classify.textcat.TextCat()
 
 
 def process_data(text):
     target_text = text
-    tc = nltk.classify.textcat.TextCat()
-    text_language = tc.guess_language(target_text)
-    if text_language == "rus":
-        noun_tag = 'S'
-    else:
-        noun_tag = 'NN'
 
     if validators.url(text.strip()):
         req = requests.get(text, headers={'User-Agent': 'TelegramBot (like TwitterBot)'})
@@ -35,6 +30,11 @@ def process_data(text):
             words += twitter_descr.contents[0]
         target_text = words
 
+    text_language = tc.guess_language(target_text)
+    if text_language == "rus":
+        noun_tag = 'S'
+    else:
+        noun_tag = 'NN'
     tokenized = tokenizer.tokenize(target_text)
     is_noun = lambda pos: pos[:2] == noun_tag
     tags = sorted(set([word.lower() for (word, pos) in nltk.pos_tag(tokenized, lang=text_language) if is_noun(pos)]))
