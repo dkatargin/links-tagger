@@ -53,9 +53,9 @@ def process_data(text):
         noun_tag = 'NN'
     tokenized = tokenizer.tokenize(target_text)
     is_noun = lambda pos: pos[:2] == noun_tag
-    tags = set(
+    tags = sorted(set(
         [lemmatize_word(word.lower(), text_language) for (word, pos) in nltk.pos_tag(tokenized, lang=text_language) if
-         is_noun(pos)])
+         is_noun(pos)]))
     return tags
 
 
