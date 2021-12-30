@@ -12,6 +12,13 @@ tokenizer = RegexpTokenizer(r'\w+')
 
 def process_data(text):
     target_text = text
+    tc = nltk.classify.textcat.TextCat()
+    text_language = tc.guess_language(target_text)
+    if text_language == "rus":
+        noun_tag = 'S'
+    else:
+        noun_tag = 'NN'
+
     if validators.url(text.strip()):
         req = requests.get(text, headers={'User-Agent': 'TelegramBot (like TwitterBot)'})
         content = req.content[:100000]
@@ -29,8 +36,8 @@ def process_data(text):
         target_text = words
 
     tokenized = tokenizer.tokenize(target_text)
-    is_noun = lambda pos: pos[:2] == 'NN'
-    tags = sorted(set([word.lower() for (word, pos) in nltk.pos_tag(tokenized) if is_noun(pos)]))
+    is_noun = lambda pos: pos[:2] == noun_tag
+    tags = sorted(set([word.lower() for (word, pos) in nltk.pos_tag(tokenized, lang=text_language) if is_noun(pos)]))
     return tags
 
 
