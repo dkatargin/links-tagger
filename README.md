@@ -1,6 +1,6 @@
 # 🧠 Second brain
 
-Mental assistant which can store and find your memo.
+Mental assistant which can store and find your memo. Supports russian and english languages.
 
 ### NLTK Packages
 
