@@ -19,7 +19,12 @@ en_lemmatizer = WordNetLemmatizer()
 ru_lemmatizer = Mystem()
 
 
-def lemmatize_word(word, lang):
+def get_lang(text):
+    return str(tc.guess_language(text)).strip()
+
+
+def lemmatize_word(word):
+    lang = get_lang(word)
     if lang == ru_lang:
         res = ru_lemmatizer.lemmatize(word)[0]
     else:
@@ -45,16 +50,15 @@ def process_data(text):
         if twitter_descr and len(twitter_descr.contents) != 0:
             words += twitter_descr.contents[0]
         target_text = words
-
-    text_language = str(tc.guess_language(target_text)).strip()
-    if text_language == ru_lang:
+    text_lang = get_lang(target_text)
+    if text_lang == ru_lang:
         noun_tag = 'S'
     else:
         noun_tag = 'NN'
     tokenized = tokenizer.tokenize(target_text)
     is_noun = lambda pos: pos[:2] == noun_tag
     tags = sorted(set(
-        [lemmatize_word(word.lower(), text_language) for (word, pos) in nltk.pos_tag(tokenized, lang=text_language) if
+        [lemmatize_word(word.lower()) for (word, pos) in nltk.pos_tag(tokenized, lang=text_lang) if
          is_noun(pos)]))
     return tags
 
