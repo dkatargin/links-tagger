@@ -70,7 +70,6 @@ def process_data(text):
         else:
             target_text += f"{w.lower()} "
 
-
     tokenized = tokenizer.tokenize(target_text)
     tags = sorted(set(
         [lemmatize_word(word.lower(), text_lang) for (word, pos) in nltk.pos_tag(tokenized, lang=text_lang) if
