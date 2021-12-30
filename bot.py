@@ -30,7 +30,7 @@ def process_data(text):
             words += twitter_descr.contents[0]
         target_text = words
 
-    text_language = tc.guess_language(target_text)
+    text_language = str(tc.guess_language(target_text)).strip()
     if text_language == "rus":
         noun_tag = 'S'
     else:
