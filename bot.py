@@ -36,7 +36,10 @@ def get_lang(text):
     :param text: any string
     :return: string: rus or eng
     """
-    return str(tc.guess_language(text)).strip()
+    lang = str(tc.guess_language(text)).strip()
+    if lang not in [ru_lang, en_lang]:
+        return en_lang
+    return lang
 
 
 def lemmatize_word(word, lang):
