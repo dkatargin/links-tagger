@@ -11,3 +11,5 @@ Some mental assistant which can store and find your memo.
 * ```nltk.download('omw-1.4')``` - for word lemma (multilang)
 * ```nltk.download('wordnet')``` - basic lemma
 
+### Example usage
+![Telegram Bot](telergam_usage.jpeg "Telegram bot")
