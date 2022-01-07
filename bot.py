@@ -124,6 +124,8 @@ def main(update, context):
     :param context: telegram context
     :return:
     """
+    if not update.message:
+        return
     result = ""
     data = update.message.text
     if update.message.chat.id != int(config.config.get("Telegram", "admin_id")):
@@ -135,7 +137,9 @@ def main(update, context):
             result += f"#{t} "
     except Exception as e:
         result = f"Ошибка: {e}"
-
+    send_to_chan = config.config.get("Telegram", "send_to")
+    if send_to_chan:
+        context.bot.sendMessage(chat_id=send_to_chan, text=f"{data}\n{result}", parse_mode='Markdown')
     update.message.reply_text(result)
 
 
