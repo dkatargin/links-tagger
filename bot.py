@@ -56,12 +56,13 @@ def lemmatize_word(word, lang):
     return res
 
 
-def is_tag_pos(pos):
+def is_tag_pos(pos, word):
     """
     Check word type. We needed only nouns or NONLEX (S is russian noun-word)
     :param pos:
     :return:
     """
+    print("DEBUG", word, pos)
     if pos in ["S", "NONLEX"] or pos[:2] == "NN":
         return True
     return False
@@ -111,7 +112,7 @@ def process_data(text):
     # get pos of words in text and store only nouns in lower-case
     tags = sorted(set(
         [lemmatize_word(word.lower(), text_lang) for (word, pos) in nltk.pos_tag(tokenized, lang=text_lang) if
-         is_tag_pos(pos)]))
+         is_tag_pos(pos, word)]))
     return tags
 
 
