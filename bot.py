@@ -127,6 +127,7 @@ def main(update, context):
     if not update.message:
         return
     result = ""
+    send_to_chan = config.config.get("Telegram", "send_to")
     data = update.message.text
     if update.message.chat.id != int(config.config.get("Telegram", "admin_id")):
         logger.bot_logger.warning(f"request from unauthorized user-id {update.message.chat.id}")
@@ -135,11 +136,11 @@ def main(update, context):
         tags = process_data(data)
         for t in tags:
             result += f"#{t} "
+        if send_to_chan:
+            context.bot.sendMessage(chat_id=send_to_chan, text=f"{data}\n{result}", parse_mode='HTML')
     except Exception as e:
         result = f"Ошибка: {e}"
-    send_to_chan = config.config.get("Telegram", "send_to")
-    if send_to_chan:
-        context.bot.sendMessage(chat_id=send_to_chan, text=f"{data}\n{result}", parse_mode='HTML')
+
     update.message.reply_text(result)
 
 
