@@ -60,10 +60,11 @@ def is_tag_pos(pos, word):
     """
     Check word type. We needed only nouns or NONLEX (S is russian noun-word)
     :param pos:
+    :param word: string uses for debug only
     :return:
     """
     logger.bot_logger.debug(f"word-pos: {word} {pos}")
-    if pos in ["S", "NONLEX"] or pos[:2] == "NN":
+    if pos in ["S", "NONLEX", "JJ"] or pos.startswith("NN"):
         return True
     return False
 
