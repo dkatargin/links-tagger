@@ -63,7 +63,7 @@ def is_tag_pos(pos, word):
     :param word: string uses for debug only
     :return:
     """
-    logger.bot_logger.debug(f"word-pos: {word} {pos}")
+    logger.bot_logger.info(f"word-pos: {word} {pos}")
     if pos in ["S", "NONLEX", "JJ"] or pos.startswith("NN"):
         return True
     return False
