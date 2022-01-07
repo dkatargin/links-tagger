@@ -139,7 +139,7 @@ def main(update, context):
         result = f"Ошибка: {e}"
     send_to_chan = config.config.get("Telegram", "send_to")
     if send_to_chan:
-        context.bot.sendMessage(chat_id=send_to_chan, text=f"{data}\n{result}", parse_mode='Markdown')
+        context.bot.sendMessage(chat_id=send_to_chan, text=f"{data}\n{result}", parse_mode='HTML')
     update.message.reply_text(result)
 
 
