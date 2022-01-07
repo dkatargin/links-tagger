@@ -62,7 +62,7 @@ def is_tag_pos(pos, word):
     :param pos:
     :return:
     """
-    print("DEBUG", word, pos)
+    logger.bot_logger.debug(f"word-pos: {word} {pos}")
     if pos in ["S", "NONLEX"] or pos[:2] == "NN":
         return True
     return False
