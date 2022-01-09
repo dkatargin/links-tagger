@@ -2,10 +2,3 @@
 token =
 admin_id = 0
 send_to =
-
-[Database]
-user =
-pass =
-host =
-port =
-db_name =

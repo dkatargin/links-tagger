@@ -9,11 +9,6 @@ Mental assistant which can store and find your memo. Supports russian and englis
 * Extract tags from text and links
 * Return sorted and uniq tag as anwer by bot
 
-### TODO
-* Make web-version (backend & frontend)
-* Postgresql as storage for tags and words
-* ...
-
 ### Usage examples
 ![Telegram Bot](telegram_usage.jpeg "Telegram bot")
 
