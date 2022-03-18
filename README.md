@@ -1,6 +1,6 @@
-# 🧠 Second brain
+# 🧠 Link Tagger
 
-Mental assistant which can store and find your memo. Supports russian and english languages.
+Assistant which helps tag links. Supports russian and english languages.
 
 
 
