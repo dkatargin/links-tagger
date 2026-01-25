@@ -7,7 +7,8 @@ from bs4 import BeautifulSoup
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.tokenize import RegexpTokenizer
 from pymystem3 import Mystem
-from telegram.ext import Updater, Filters, MessageHandler
+from telegram import Update
+from telegram.ext import Application, MessageHandler, ContextTypes, filters
 
 from common import config, logger
 
@@ -117,7 +118,7 @@ def process_data(text):
     return tags
 
 
-def main(update, context):
+async def main(update: Update, context: ContextTypes.DEFAULT_TYPE):
     """
     Main func for handle telegram messages. Return text-message as result
     :param update: telegram object (message or any)
@@ -137,16 +138,15 @@ def main(update, context):
         for t in tags:
             result += f"#{t} "
         if send_to_chan:
-            context.bot.sendMessage(chat_id=send_to_chan, text=f"{data}\n{result}", parse_mode='HTML')
+            await context.bot.send_message(chat_id=send_to_chan, text=f"{data}\n{result}", parse_mode='HTML')
     except Exception as e:
         result = f"Ошибка: {e}"
 
-    update.message.reply_text(result)
+    await update.message.reply_text(result)
 
 
 if __name__ == "__main__":
     logger.bot_logger.info("bot running...")
-    updater = Updater(config.config.get("Telegram", "token"))
-    updater.dispatcher.add_handler(MessageHandler(Filters.all, main))
-    updater.start_polling()
-    updater.idle()
+    application = Application.builder().token(config.config.get("Telegram", "token")).build()
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, main))
+    application.run_polling()
