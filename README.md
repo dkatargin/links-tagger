@@ -13,12 +13,14 @@ Assistant which helps tag links. Supports russian and english languages.
 ![Telegram Bot](telegram_usage.jpeg "Telegram bot")
 
 # About code
-Code tested and work on Python 3.9 with [requirements](requirements.txt) in venv. Also yon need to download NLTK packages.
+Code tested and work on Python 3.13 with [requirements](requirements.txt) in venv. Also yon need to download NLTK packages.
 
 ### NLTK Packages
-* ```nltk.download('averaged_perceptron_tagger')``` - for english words tokenize
+* ```nltk.download('averaged_perceptron_tagger')``` - for common words tokenize
 * ```nltk.download('averaged_perceptron_tagger_ru')``` - for russian words tokenize
+* ```nltk.download('averaged_perceptron_tagger_eng')``` - for english words tokenize
 * ```nltk.download('crubadan')``` - for languade detection
 * ```nltk.download('punkt')``` - for word tokenize
+* ```nltk.download('punkt_tab')``` - for word tokenize
 * ```nltk.download('omw-1.4')``` - for word lemma (multilang)
 * ```nltk.download('wordnet')``` - basic lemma
