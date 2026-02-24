@@ -2,3 +2,4 @@
 venv
 *.pyc
 *.cfg
+nltk_data/

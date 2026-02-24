@@ -1,12 +1,19 @@
 import re
+from pathlib import Path
 
 import nltk
+
+# Переопределяем путь к данным NLTK — храним внутри проекта, а не в $HOME/nltk_data
+_NLTK_DATA = Path(__file__).parent / "nltk_data"
+_NLTK_DATA.mkdir(exist_ok=True)
+nltk.data.path = [str(_NLTK_DATA)]
+
 import requests
 import validators
 from bs4 import BeautifulSoup
 from nltk.stem.wordnet import WordNetLemmatizer
 from nltk.tokenize import RegexpTokenizer
-from pymystem3 import Mystem
+import pymorphy3
 from telegram import Update
 from telegram.ext import Application, MessageHandler, ContextTypes, filters
 
@@ -24,7 +31,7 @@ tc = nltk.classify.textcat.TextCat()
 
 # load lemmatizers
 en_lemmatizer = WordNetLemmatizer()
-ru_lemmatizer = Mystem()
+ru_lemmatizer = pymorphy3.MorphAnalyzer()
 
 
 def get_acronyms(text):
@@ -43,31 +50,55 @@ def get_lang(text):
     return lang
 
 
-def lemmatize_word(word, lang):
+def extract_ru_nouns(words):
     """
-    Get lemma for word by selected language. For ru-lang use mystem lemmatizer and NLTK for others
-    :param word: any word from text
-    :param lang: rus or eng
-    :return: return list of lemmas (words)
+    Лемматизация и фильтрация существительных для смешанного текста.
+    - Кириллические слова: pymorphy3 (POS OpenCorpora, NOUN)
+    - Латинские слова (POS=None у pymorphy3): передаём батчем в NLTK pos_tag
+    :param words: список токенов в нижнем регистре
+    :return: список лемм существительных
     """
-    if lang == ru_lang:
-        res = ru_lemmatizer.lemmatize(word)[0]
-    else:
-        res = en_lemmatizer.lemmatize(word, "n")
-    return res
+    result = []
+    # разделяем кириллицу и латиницу
+    latin_words = [w for w in words if w.isascii()]
+    for word in words:
+        if not word.isascii():
+            # кириллица — pymorphy3
+            parsed = ru_lemmatizer.parse(word)[0]
+            pos = parsed.tag.POS
+            logger.bot_logger.info(f"word-pos (ru): {word} {pos}")
+            if pos == "NOUN":
+                result.append(parsed.normal_form)
+        # латинские обрабатываем батчем ниже
+
+    # латинские слова — один вызов pos_tag для всего батча (эффективнее)
+    if latin_words:
+        for word, pos in nltk.pos_tag(latin_words):
+            logger.bot_logger.info(f"word-pos (en in ru-text): {word} {pos}")
+            if is_en_noun(pos, word):
+                result.append(lemmatize_word(word.lower()))
+
+    return result
 
 
-def is_tag_pos(pos, word):
+def lemmatize_word(word):
     """
-    Check word type. We needed only nouns or NONLEX (S is russian noun-word)
-    :param pos:
-    :param word: string uses for debug only
-    :return:
+    Лемматизация английского слова через WordNet (только существительные).
+    :param word: токен в нижнем регистре
+    :return: лемма
     """
-    logger.bot_logger.info(f"word-pos: {word} {pos}")
-    if pos in ["S", "NONLEX", "JJ"] or pos.startswith("NN"):
-        return True
-    return False
+    return en_lemmatizer.lemmatize(word, "n")
+
+
+def is_en_noun(pos, word):
+    """
+    Фильтр существительных для английского по тегам NLTK (Penn Treebank).
+    :param pos: тег от nltk.pos_tag
+    :param word: строка для дебага
+    :return: bool
+    """
+    # NN, NNS, NNP, NNPS — все формы существительных в Penn Treebank
+    return pos.startswith("NN")
 
 
 def process_data(text):
@@ -111,10 +142,20 @@ def process_data(text):
             target_text += f"{w.lower()} "
     # get tokens from text
     tokenized = tokenizer.tokenize(target_text)
-    # get pos of words in text and store only nouns in lower-case
-    tags = sorted(set(
-        [lemmatize_word(word.lower(), text_lang) for (word, pos) in nltk.pos_tag(tokenized, lang=text_lang) if
-         is_tag_pos(pos, word)]))
+
+    if text_lang == ru_lang:
+        # pymorphy3 даёт лемму и POS за один проход — NLTK pos_tag не нужен
+        nouns = extract_ru_nouns(tokenized)
+    else:
+        # для EN используем NLTK Penn Treebank теги
+        tagged = nltk.pos_tag(tokenized)
+        nouns = []
+        for word, pos in tagged:
+            logger.bot_logger.info(f"word-pos (en): {word} {pos}")
+            if is_en_noun(pos, word):
+                nouns.append(lemmatize_word(word.lower()))
+
+    tags = sorted(set(nouns))
     return tags
 
 
